@@ -21,9 +21,11 @@ import java.io.IOException; import java.util.*;
 public class CSVReader {
     private Map<String, List<Map<String, String>>> dataMap = new HashMap<>();
 
-    @Value("${mosip.certify.data-provider.identifier.column}")
+    //@Value("id")
+    @Value("${mosip.certify.mock.data-provider.csv.identifier-column}")
     private String identifierColumn;
-    @Value("${mosip.certify.data-provider.fields.include}")
+    @Value("${mosip.certify.mock.data-provider.csv.data-columns}")
+    //@Value("id,fullName,dateOfBirth,employerName,employerAddress,employerCIN,gstNumber,employerContact,currentlyEmployed,authorizedDevices,photo,technicianID")
     private String includeFields;
 
     private Set<String> fieldsToInclude;
@@ -74,20 +76,44 @@ public class CSVReader {
 
     public JSONObject getJsonObjectByIdentifier(String identifier) throws DataProviderExchangeException, JSONException {
         JSONObject jsonObject = new JSONObject();
+        
+        log.info("Current state of dataMap: {}", dataMap);
+
+        // Log the input identifier
+        log.info("Looking up data for identifier: {}", identifier);
+    
         List<Map<String, String>> records = dataMap.get(identifier);
-        if(records == null || records.isEmpty()) {
-            log.error("No identifier found.");
-            throw new DataProviderExchangeException("No record found in csv with the provided identifier");
+        
+        if (records == null || records.isEmpty()) {
+            // Log detailed error if no records are found
+            log.error("No records found for identifier: {}", identifier);
+            throw new DataProviderExchangeException("No record found in CSV with the provided identifier");
         }
+    
+        // Log the number of records found
+        log.info("Found {} records for identifier: {}", records.size(), identifier);
+    
         if (records != null && !records.isEmpty()) {
             Map<String, String> record = records.get(0);
-            // Add only configured fields to JsonObject
+    
+            // Log the raw record data for debugging
+            log.debug("Processing record: {}", record);
+    
+            // Add only configured fields to JSON object
             for (Map.Entry<String, String> entry : record.entrySet()) {
                 if (fieldsToInclude.contains(entry.getKey()) || entry.getKey().equals(identifierColumn)) {
                     jsonObject.put(entry.getKey(), entry.getValue());
+    
+                    // Log each key-value pair added to the JSON object
+                    log.debug("Added field to JSON: {} = {}", entry.getKey(), entry.getValue());
                 }
             }
         }
+    
+        // Log the final JSON object before returning
+        log.info("Generated JSON object for identifier {}: {}", identifier, jsonObject);
+    
         return jsonObject;
     }
+    
 }

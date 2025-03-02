@@ -75,7 +75,7 @@ public class MockVCIssuancePlugin implements VCIssuancePlugin {
 	@Value("${mosip.certify.mock.vciplugin.verification-method}")
 	private String verificationMethod;
 
-	@Value("${mosip.certify.mock.authenticator.get-identity-url}")
+	@Value("${mosip.certify.mock.authProviderPluginenticator.get-identity-url}")
 	private String getIdentityUrl;
 
 	@Value("${mosip.certify.cache.security.secretkey.reference-id}")
